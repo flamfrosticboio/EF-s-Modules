@@ -1,6 +1,8 @@
 import TweenService
 from TweenService.Easings import EaseInExpo
 
+TweenService.init()
+
 t = TweenService.TweenHandler(1, {}, {})
 print(t.start())
 

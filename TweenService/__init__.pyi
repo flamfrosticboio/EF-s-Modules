@@ -1,8 +1,17 @@
 """This module acts similarly to Roblox's TweenService API with extended classes and options."""
 
-from typing import TypedDict, Callable, NotRequired, Self, Any, overload
+from typing import TypedDict, Callable, NotRequired, Self, Any, overload, Literal
 from collections import deque
 from threading import Thread
+
+DEFAULT_TWEEN_TIME: Literal[1]
+DEFAULT_TWEEN_STYLE: Callable[[int | float], int | float]
+DEFAULT_TWEEN_DELAY: Literal[0]
+DEFAULT_TWEEN_REPEAT_COUNT: Literal[0]
+DEFAULT_TWEEN_REVERSES: Literal[False]
+
+TWEEN_EVENT_TYPE_DEFAULT: Literal[0]
+TWEEN_EVENT_TYPE_ONCE: Literal[1]
 
 class TweenInfo_T(TypedDict):
     time: NotRequired[int | float]
@@ -39,9 +48,16 @@ class TweenInfo:
         """Returns a dictionary version of TweenInfo."""
         ...
 
-    def from_dict(self) -> Self:
-        """Converts dictionary to TweenInfo.""" 
-        ...
+    def get(self, key: str) -> Any: ...
+
+class TweenEvent:
+    def __init__(self, name: str):
+        self.events: deque[tuple[Callable[..., Any], int]]
+        self.name: str
+    def Connect(self, func: Callable[..., Any], append_left: bool = False): ...
+    def Disconnect(self, func: Callable[..., Any]): ...
+    def Once(self, func: Callable[..., Any], append_left: bool = False): ...
+    def Fire(self, *args, **kwargs): ...
 
 class TweenHandler:
     def __init__(self, object: object, tweenInfo: TweenInfo_T | TweenInfo, target: dict[str, Any], 
@@ -50,6 +66,15 @@ class TweenHandler:
         self.tweenInfo: TweenInfo_T
         self.target_property: dict[str, Any]
         self.thread: TweenThread
+
+        self.Completed: TweenEvent
+        self.TweenStarted: TweenEvent
+        self.StartCalled: TweenEvent
+
+        self.start_time: int | float
+
+    def GetTweenInfo(self) -> TweenInfo: ...
+    def GetTweenInfoData(self, key) -> Any: ...
 
     def start(self) -> Self: 
         """Starts the tween."""
@@ -77,3 +102,6 @@ class TweenThread:
     def __update_wrap__(self_obj): ...
 
 GlobalTweenThread: TweenThread | None
+
+def init(cycles: int = 60) -> TweenThread: ...
+def create_main_thread(cycles: int = 60) -> TweenThread: ...
