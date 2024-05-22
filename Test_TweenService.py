@@ -1,7 +1,9 @@
-import pygame as pg 
+import pygame as pg
 import TweenService
+from test_classes import LinkedList
 
 tween_thread_main = TweenService.create_main_thread()
+
 
 class Frame:
     def __init__(self, pos, size, color):
@@ -10,28 +12,39 @@ class Frame:
         self.image.fill(color)
 
     def render(self, surface):
-        surface.blit(self.image, self.rect)
+        image = pg.Surface(self.rect.size)
+        image.fill(self.image.get_at((0, 0)))
+        surface.blit(image, self.rect)
+
 
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = (680, 420)
 screen = pg.display.set_mode(SCREEN_SIZE)
-clock = pg.time.Clock() 
+clock = pg.time.Clock()
 
-allframes = [
-    Frame((10, 10), (50, 50), (0, 255, 0))
-]
+allframes = [Frame((10, 10), (50, 50), (255, 0, 0))]
 
-item_a = allframes[0].rect
-tween_a = TweenService.TweenHandler(item_a, TweenService.TweenInfo(), {"left": 100})
-tween_a.start()
+item_a = [200, 200]
+tween = TweenService.TweenHandler(
+    item_a, TweenService.TweenInfo(), LinkedList(10, 10), use_range = True
+)
 
-tween_a.Completed.Connect(lambda *args, **kwargs: allframes[0].image.fill((0, 255, 0)))
+print(item_a)
 
-running = True 
+tween.start()
+
+running = True
 while running:
     for e in pg.event.get():
-        if e.type == pg.QUIT: running = False 
+        if e.type == pg.QUIT:
+            running = False
     tween_thread_main.update()
     screen.fill((255, 255, 255))
+
+    allframes[0].rect.topleft = item_a[:2]
+    # allframes[0].rect.size = item_a[2]
+
+    # allframes[0].rect.topleft = item_a['my_topleft']
+    # allframes[0].rect.size = item_a['my_size']
 
     for frame in allframes:
         frame.render(screen)
