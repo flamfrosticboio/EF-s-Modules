@@ -118,15 +118,17 @@ def EaseInOutElastic(progress: number) -> number:
     return (Math.pow(2, -20 * progress + 10) * Math.sin((20 * progress - 11.125) * _c5)) / 2 + 1
 
 def EaseOutBounce(progress: number) -> number:
-    if (progress < 1 / _d1): return _n1 * progress * progress
-    elif (progress < 2 / _d1): 
-        progress -= 1.5
-        return _n1 * (progress / _d1) * progress + 0.75
-    elif (progress < 2.5 / _d1): 
-        progress -= 2.25
-        return _n1 * (progress / _d1) * progress + 0.9375
-    progress -= 2.625
-    return _n1 * (progress / _d1) * progress + 0.984375
+    if progress < (1 / _d1):
+        return _n1 * progress * progress
+    elif progress < (2 / _d1):
+        progress -= (1.5 / _d1)
+        return _n1 * progress * progress + 0.75
+    elif progress < (2.5 / _d1):
+        progress -= (2.25 / _d1)
+        return _n1 * progress * progress + 0.9375
+    else:
+        progress -= (2.625 / _d1)
+        return _n1 * progress * progress + 0.984375
 
 def EaseInBounce(progress: number) -> number:
     return 1 - EaseOutBounce(1 - progress)
