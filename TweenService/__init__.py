@@ -219,7 +219,7 @@ class TweenEvent:
             self.events.appendleft(func)
         else:
             self.events.append(func)
-
+ 
     def Fire(self, *args, **kwargs):
         for _func, _t in self.events.copy():
             _func(*args, **kwargs)
