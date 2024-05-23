@@ -14,14 +14,18 @@ from typing import (
 from collections import deque
 from threading import Thread
 
-DEFAULT_TWEEN_TIME: Literal[1]
+DEFAULT_TWEEN_TIME: Literal[1] = 1
 DEFAULT_TWEEN_STYLE: Callable[[int | float], int | float]
-DEFAULT_TWEEN_DELAY: Literal[0]
-DEFAULT_TWEEN_REPEAT_COUNT: Literal[0]
-DEFAULT_TWEEN_REVERSES: Literal[False]
+DEFAULT_TWEEN_DELAY: Literal[0] = 0
+DEFAULT_TWEEN_REPEAT_COUNT: Literal[0] = 0
+DEFAULT_TWEEN_REVERSES: Literal[False] = False
 
-TWEEN_EVENT_TYPE_DEFAULT: Literal[0]
-TWEEN_EVENT_TYPE_ONCE: Literal[1]
+TWEEN_EVENT_TYPE_DEFAULT: Literal[0] = 0
+TWEEN_EVENT_TYPE_ONCE: Literal[1] = 1
+
+TWEEN_METHOD_ATTRIBUTE: Literal[0] = 0
+TWEEN_METHOD_LIST: Literal[1] = 1
+TWEEN_METHOD_DICT: Literal[2] = 2
 
 class TweenInfo_T(TypedDict):
     time: NotRequired[int | float]
@@ -29,15 +33,6 @@ class TweenInfo_T(TypedDict):
     delay: NotRequired[int | float]
     repeat_count: NotRequired[int]
     reverses: NotRequired[bool]
-
-class TargetP_ListType(TypedDict):
-    value: Required[tuple | list | Sequence]
-    offset: NotRequired[int]
-    size: NotRequired[int]
-
-class TargetP_AttrType(TypedDict):
-    attr_mode: NotRequired[bool]
-    ...
 
 class TweenInfo:
     """Stores the TweenInfo for tweening process. \n \n
@@ -94,7 +89,7 @@ class TweenHandler:
             - int | float
             - Sequence[int | float | Sequence[int | float]]
             - Any sequence with __iter__ method
-            - a class that has attribute or method "__tw_use_val__" -> str
+            - Any class that supports __index__, (__int__ or __float__) methods
         - Object type:
             - object (uses attribute assignment)
             - object [with item assignment] (uses list assignment)
@@ -102,8 +97,12 @@ class TweenHandler:
             - dict (uses dict assignment)
 
     Flags:
-        - use_range: For objects that returns a iterable in the target parameter, use this option if you are
-        getting errors related to indexing. 
+        - use_range (bool): For objects that returns a iterable only in the target parameter, use this option 
+        if you are getting errors related to indexing.
+        - use_set_attr_name (str): Name of attribute if using custom objects for value.
+        Ex: A LinkedList contains Node(s) with attribute 'value'. We use use_set_attr_name = "value" to let it
+        assign to node's attribute.
+        - force_method (int): forces the method to use. [1: List Method, 2: Dict Method, 0: Attribute Method]
     """
 
     @overload
@@ -123,9 +122,12 @@ class TweenHandler:
         self.Completed: TweenEvent
         self.TweenStarted: TweenEvent
         self.StartCalled: TweenEvent
+        self.Step: TweenEvent
 
         self.start_time: int | float
         self.running: bool
+
+        self.method: int
     @overload
     def __init__(
         self,
@@ -144,6 +146,9 @@ class TweenHandler:
     def update(self) -> bool:
         """Update wrapper for updating values of tween. Returns bool for tween success"""
         ...
+
+    def get_method(self) -> int:
+        """Gets method of TweenHandler."""
 
 class TweenThread:
     """A thread to run tweening updates."""
