@@ -19,7 +19,7 @@ SeqT = TypeVar("SeqT")
 
 # for type in ('tuple', 'list', 'sequence'):
 #     for name, operation in operations.items():
-#         print(f"def {name}{type[0].upper()}(a: {type.capitalize()}[int | float, ...], b: {type.capitalize()}[int | float, ...]) -> {type.capitalize()}[int | float, ...]:")
+#         print(f"def {name}{type[0].upper()}(a: {type.capitalize()}[int | float | Any, ...], b: {type.capitalize()}[int | float | Any, ...]) -> {type.capitalize()}[int | float | Any, ...]:")
 #         print(f'    """Equivalent to a {operation} b for every item in a {type}."""')
 #         print("    guard_check(a, b)")
 #         print(f"    return {type}(x {operation} y for x, y in zip(a, b))")
@@ -27,7 +27,7 @@ SeqT = TypeVar("SeqT")
 
 #     for name, operation in conversions.items():
 #         spanned = isinstance(operation, tuple)
-#         print(f"def {name}{type[0].upper()}(a: {type.capitalize()}[int | float, ...]) -> {type.capitalize()}[int | float, ...]:")
+#         print(f"def {name}{type[0].upper()}(a: {type.capitalize()}[int | float | Any, ...]) -> {type.capitalize()}[int | float | Any, ...]:")
 #         print(f'    """Equivalent to {operation[0] if spanned else operation}a{operation[1] if spanned else ""} for every item in a {type}."""')
 #         print(f"    return {type}({operation[0] if spanned else operation}x{operation[1] if spanned else ''} for x in a)")
 #         print("")
@@ -51,195 +51,195 @@ def guard_check(a, b):
         raise LengthError(f"Length of a[{la}] and b[{lb}] not matched.")
 
 # All operations
-def addT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def addT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a + b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x + y for x, y in zip(a, b))
 
-def subT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def subT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a - b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x - y for x, y in zip(a, b))
 
-def mulT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def mulT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a * b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x * y for x, y in zip(a, b))
 
-def divT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def divT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a / b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x / y for x, y in zip(a, b))
 
-def fdivT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def fdivT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a // b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x // y for x, y in zip(a, b))
 
-def powT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def powT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a ** b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x ** y for x, y in zip(a, b))
 
-def modT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def modT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a % b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x % y for x, y in zip(a, b))
 
-def lshiftT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def lshiftT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a << b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x << y for x, y in zip(a, b))
 
-def rshiftT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def rshiftT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a >> b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x >> y for x, y in zip(a, b))
 
-def andT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def andT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a & b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x & y for x, y in zip(a, b))
 
-def orT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def orT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a | b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x | y for x, y in zip(a, b))
 
-def xorT(a: Tuple[int | float, ...], b: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def xorT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to a ^ b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x ^ y for x, y in zip(a, b))
 
-def negT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def negT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to -a for every item in a tuple."""
     return tuple(-x for x in a)
 
-def absT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def absT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to abs(a) for every item in a tuple."""
     return tuple(abs(x) for x in a)
 
-def invT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def invT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to ~a for every item in a tuple."""
     return tuple(~x for x in a)
 
-def tointT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def tointT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to int(a) for every item in a tuple."""
     return tuple(int(x) for x in a)
 
-def tofloatT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def tofloatT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to float(a) for every item in a tuple."""
     return tuple(float(x) for x in a)
 
-def toindexT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def toindexT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to index(a) for every item in a tuple."""
     return tuple(index(x) for x in a)
 
-def roundT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def roundT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to round(a) for every item in a tuple."""
     return tuple(round(x) for x in a)
 
-def floorT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def floorT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to floor(a) for every item in a tuple."""
     return tuple(floor(x) for x in a)
 
-def ceilT(a: Tuple[int | float, ...]) -> Tuple[int | float, ...]:
+def ceilT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to ceil(a) for every item in a tuple."""
     return tuple(ceil(x) for x in a)
 
-def addL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def addL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a + b for every item in a list."""
     guard_check(a, b)
     return list(x + y for x, y in zip(a, b))
 
-def subL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def subL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a - b for every item in a list."""
     guard_check(a, b)
     return list(x - y for x, y in zip(a, b))
 
-def mulL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def mulL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a * b for every item in a list."""
     guard_check(a, b)
     return list(x * y for x, y in zip(a, b))
 
-def divL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def divL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a / b for every item in a list."""
     guard_check(a, b)
     return list(x / y for x, y in zip(a, b))
 
-def fdivL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def fdivL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a // b for every item in a list."""
     guard_check(a, b)
     return list(x // y for x, y in zip(a, b))
 
-def powL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def powL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a ** b for every item in a list."""
     guard_check(a, b)
     return list(x ** y for x, y in zip(a, b))
 
-def modL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def modL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a % b for every item in a list."""
     guard_check(a, b)
     return list(x % y for x, y in zip(a, b))
 
-def lshiftL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def lshiftL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a << b for every item in a list."""
     guard_check(a, b)
     return list(x << y for x, y in zip(a, b))
 
-def rshiftL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def rshiftL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a >> b for every item in a list."""
     guard_check(a, b)
     return list(x >> y for x, y in zip(a, b))
 
-def andL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def andL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a & b for every item in a list."""
     guard_check(a, b)
     return list(x & y for x, y in zip(a, b))
 
-def orL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def orL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a | b for every item in a list."""
     guard_check(a, b)
     return list(x | y for x, y in zip(a, b))
 
-def xorL(a: List[int | float], b: List[int | float]) -> List[int | float]:
+def xorL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to a ^ b for every item in a list."""
     guard_check(a, b)
     return list(x ^ y for x, y in zip(a, b))
 
-def negL(a: List[int | float]) -> List[int | float]:
+def negL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to -a for every item in a list."""
     return list(-x for x in a)
 
-def absL(a: List[int | float]) -> List[int | float]:
+def absL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to abs(a) for every item in a list."""
     return list(abs(x) for x in a)
 
-def invL(a: List[int | float]) -> List[int | float]:
+def invL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to ~a for every item in a list."""
     return list(~x for x in a)
 
-def tointL(a: List[int | float]) -> List[int | float]:
+def tointL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to int(a) for every item in a list."""
     return list(int(x) for x in a)
 
-def tofloatL(a: List[int | float]) -> List[int | float]:
+def tofloatL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to float(a) for every item in a list."""
     return list(float(x) for x in a)
 
-def toindexL(a: List[int | float]) -> List[int | float]:
+def toindexL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to index(a) for every item in a list."""
     return list(index(x) for x in a)
 
-def roundL(a: List[int | float]) -> List[int | float]:
+def roundL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to round(a) for every item in a list."""
     return list(round(x) for x in a)
 
-def floorL(a: List[int | float]) -> List[int | float]:
+def floorL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to floor(a) for every item in a list."""
     return list(floor(x) for x in a)
 
-def ceilL(a: List[int | float]) -> List[int | float]:
+def ceilL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to ceil(a) for every item in a list."""
     return list(ceil(x) for x in a)
 
