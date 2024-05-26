@@ -14,149 +14,99 @@ DEFAULT_TWEEN_REVERSES = False
 TWEEN_EVENT_TYPE_DEFAULT = 0
 TWEEN_EVENT_TYPE_ONCE = 1
 
-TWEEN_METHOD_ATTRIBUTE = 0
+TWEEN_METHOD_DICT = 0
 TWEEN_METHOD_LIST = 1
-TWEEN_METHOD_DICT = 2
 
-_default_kpdict = {
-    name.lower(): eval("DEFAULT_TWEEN_" + name)
-    for name in ("TIME", "STYLE", "DELAY", "REPEAT_COUNT", "REVERSES")
-}
-
+_default_kpdict = None
 
 def _print_warning(type, message):
     print("\033[93m" + type + ": " + message + "\033[0m")
 
-
-def _has_method(obj, name):
-    name = "__" + name + "__"
-    return hasattr(obj, name) and callable(getattr(obj, name))
-
-
-def _has_methods(obj, _t):
-    return all(_has_method(obj, name) for name in _t)
-
-
 def _ival(t):
-    if _has_method(t, "int"):
-        return int(t)
-    elif _has_method(t, "float"):
-        return float(t)
-    return t
+    if hasattr(t, "__float__"): return float(t)
+    return int(t)
 
+def _get_iter(obj, index):
+    i = 0
+    for x in obj:
+        if i == index: return x
+        i += 1
 
-def _get_key_ex(obj, key):
-    if _has_method(obj, "getitem"):
-        return obj[key]
-    elif _has_method(obj, "iter") and isinstance(key, int):
-        i = 0
-        for item in obj:
-            if i == key:
-                return item
-            i += 1
+def _get_item(item, name, attr = False):
+    # print("GTITEM", item, name, attr)
+    if attr: return getattr(item, name)
+    if hasattr(item, "__getitem__"): return item[name]
+    if hasattr(item, "__iter__"): return _ival(_get_iter(item, name))
+    return getattr(item, name)
 
+def _set_item(item, name, value, attr = False):
+    # print("STITEM", item, name)
+    if hasattr(item, "__setitem__") and not attr: item[name] = value
+    else: setattr(item, name, value) 
 
-def get_iter_len(obj):
-    if _has_method(obj, "len"):
-        return len(obj)
-    length = 0
-    for _ in obj:
-        length += 1
-    return length
-
-
-def _class(instance):
-    return instance.__class__
-
-
-def _deep_apply_attr(main, func, a, b):
-    for key in a:
-        mattr = getattr(main, key)
-        if _has_method(mattr, "iter"):
-            if isinstance(mattr, dict):
-                _deep_apply_dict(mattr, func, a[key], b[key])
-            elif _has_method(mattr, "setitem"):
-                _deep_apply_list(mattr, func, a[key], b[key])
-            else:
-                setattr(
-                    main,
-                    key,
-                    tuple(
-                        func(_get_key_ex(a[key], i), _get_key_ex(b[key], i))
-                        for i in range(get_iter_len(mattr))
-                    ),
-                )
+def _ap_cond(m, f, a, b, key):
+    print("COND", m, a, b, key)
+    sa = _get_item(a, key)
+    sb = _get_item(b, key)
+    attr_m = isinstance(a, dict) and not isinstance(m, dict)
+    # print("ATTR", attr_m, m, a)
+    sm = _get_item(m, key, attr_m)
+    # print("COND ITEM", sa, sb, "-m", m, sm, "--isAttr", attr_m)
+    if isinstance(sa, dict):
+        _deep_apply_dict(sm, f, sa, sb)
+    elif hasattr(sm, "__setitem__"):
+        _deep_apply_list(sm, f, sa, sb)
+    else:
+        # print("APPLYING", a, b, sa, sb)
+        if hasattr(sa, "__iter__"):
+            result = tuple(f(sa[i], sb[i]) for i, _ in enumerate(sb))
         else:
-            setattr(main, key, func(a[key], b[key]))
+            result = f(sa, sb)
+        
+        # print("RESULT", result)
+        _set_item(m, key, result, attr_m)
 
-def _deep_copy_attr(_m, _tar_d):
+def _deep_apply_list(m, f, a, b):
+    print("ADL")
+    for t, _ in enumerate(m):
+        _ap_cond(m, f, a, b, t)
+
+def _deep_apply_dict(m, f, a, b):
+    print("ADD")
+    for t in a:
+        _ap_cond(m, f, a, b, t)
+
+def _cp_cond(_m, _t, key):
+    print("COND", _m, _t, key)
+    attr_m = isinstance(_t, dict) and not isinstance(_m, dict)
+    print("ATTR", attr_m)
+    sm = _get_item(_m, key, attr_m)
+    st = _get_item(_t, key)
+    print("COND ITEM", sm, st)
+    if isinstance(st, dict):
+        return _deep_copy_dict(sm, st)
+    elif hasattr(sm, "__iter__"):
+        if hasattr(sm, "__setitem__"):
+            return _deep_copy_list(sm, st)
+        else:
+            return tuple(_ival(_get_item(sm, i)) for i in range(len(tuple(sm))))
+    return _ival(sm)
+
+def _deep_copy_dict(m, t):
+    print("TYPE DICT")
     res = {}
-    for key in _tar_d:
-        item = getattr(_m, key)
-        if _has_method(item, "iter"):
-            if isinstance(item, dict):
-                res[key] = _deep_copy_dict(item, _tar_d[key])
-            elif _has_method(item, "getitem"):
-                res[key] = _deep_copy_list(item)
-            else:
-                res[key] = _deep_copy_attr(item, _tar_d[key])
-        else:
-            res[key] = _ival(item)
+    for key in t:
+        res[key] = _cp_cond(m, t, key)
+    print("FINAL DD", res)
     return res
 
-def _deep_copy_list(_list):
+def _deep_copy_list(m, t):
+    print("TYPE LIST")
     res = []
-    for item in _list:
-        if _has_method(item, "iter"):
-            res.append(_deep_copy_list(item))
-        else:
-            res.append(_ival(item))
+    for i in range(len(tuple(t))):
+        res.append(_cp_cond(m, t, i))
+    print("FINAL DL", res)
     return res
-
-
-def _deep_apply_list(main, func, a, b):
-    for index, item in enumerate(main):
-        if _has_method(item, "iter"):
-            _deep_apply_list(item, func, _get_key_ex(a, index), _get_key_ex(b, index))
-        elif _has_method(main, "setitem"):
-            main[index] = func(_get_key_ex(a, index), _get_key_ex(b, index))
-        else:
-            raise TypeError(
-                f"Cannot apply value to non-mutable or no item assignment support class {main.__class__.__name__}."
-            )
-
-
-def _deep_same_list(a, b):
-    if _has_method(a, "iter") and _has_method(b, "iter"):
-        if get_iter_len(a) != get_iter_len(b):
-            return False
-        return all(_deep_same_list(sub1, sub2) for sub1, sub2 in zip(a, b))
-    return isinstance(_ival(a), (int, float)) and isinstance(_ival(b), (int, float))
-
-
-def _deep_copy_dict(_m, _tar_d):
-    res = {}
-    for key in _tar_d:
-        item = _m[key]
-        if _has_method(item, "iter"):
-            if isinstance(item, dict):
-                res[key] = _deep_copy_dict(item, _tar_d[key])
-            else:
-                res[key] = _deep_copy_list(item)
-        else:
-            res[key] = _ival(item)
-    return res
-
-
-def _deep_apply_dict(main, func, a, b):
-    for key in a:
-        if _has_method(main[key], "iter"):
-            if isinstance(main[key], dict):
-                _deep_apply_dict(main[key], func, a[key], b[key])
-            else:
-                _deep_apply_list(main[key], func, a[key], b[key])
-        else:
-            main[key] = func(a[key], b[key])
 
 
 class TweenInfo:
@@ -226,21 +176,9 @@ class TweenEvent:
             if _t == TWEEN_EVENT_TYPE_ONCE:
                 self.events.remove((_func, _t))
 
-
-def get_iter(obj, flags):
-    if isinstance(obj, (list, tuple)):
-        return range(len(obj))
-    if flags.get("use_range"):
-        return range(len(obj) if _has_method(obj, "len") else get_iter_len(obj))
-    return obj
-
-
-def _get_item_iter(obj, index):
-    for x in obj:
-        if get_index(x) == index:
-            return _ival(x)
-    raise IndexError(f"Index out of range. index={index}")
-
+def start_wrapper(self, delay):
+    sleep(delay)    
+    self._start()
 
 class TweenHandler:
     def __init__(self, object, tweenInfo, target, thread=None, **flags) -> None:
@@ -260,31 +198,19 @@ class TweenHandler:
 
         self._original_values = {}
 
-        self.method = TWEEN_METHOD_ATTRIBUTE
+        self.method = -1
 
-        if (fl := self.flags.get("force_method")) is not None:
-            self.method = fl
+        if globals()['_default_kpdict'] is None:
+            global _default_kpdict
+            _default_kpdict = {name.lower(): eval("DEFAULT_TWEEN_" + name) for name in 
+                               ("TIME", "STYLE", "DELAY", "REPEAT_COUNT", "REVERSES")}
+
+        if (fl := self.flags.get("force_method")) is not None: self.method = fl
         else:
-            if (
-                _has_methods(self.object, ("setitem", "getitem"))
-                and _has_method(self.target, "iter")
-                and not issubclass(_class(self.target), dict)
-            ):
-                self.method = TWEEN_METHOD_LIST
-
-            elif issubclass(_class(self.object), dict) and issubclass(
-                _class(self.target), dict
-            ):
-                self.method = TWEEN_METHOD_DICT
-
-            elif issubclass(_class(self.target), dict):
-                self.method = TWEEN_METHOD_ATTRIBUTE
-
-        if self.method == TWEEN_METHOD_LIST:
-            if not _deep_same_list(self.object, self.target):
-                raise ValueError(
-                    f"Both object[{self.object.__class__.__name__}] and target[{self.target.__class__.__name__}] don't have the same structure."
-                )
+            if isinstance(self.target, dict):
+                self.method = 0
+            elif hasattr(self.object, "__setitem__"):
+                self.method = 1
 
         print("[Debug]: Method", self.method)
 
@@ -298,68 +224,43 @@ class TweenHandler:
         return self.tweenInfo.get(key, _default_kpdict[key])
 
     def _start(self):
-        if self.method == TWEEN_METHOD_LIST:
-            self._original_values = _deep_copy_list(self.object)
-        elif self.method == TWEEN_METHOD_DICT:
+        if self.method == 1:
+            self._original_values = _deep_copy_list(self.object, self.target)
+        else:
             self._original_values = _deep_copy_dict(self.object, self.target)
-        elif self.method == TWEEN_METHOD_ATTRIBUTE:
-            self._original_values = _deep_copy_attr(self.object, self.target)
 
-        # _deep_apply_list(self.object, lambda *args: print(*args))
-
-        print("Original Values:", self._original_values)
+        print("[Debug]: Original Values:", self._original_values)
+        # raise BaseException("Stopped for debugging")
 
         self.running = True
         self.start_time = get_time()
         self.thread.add_item(self)
-        self.TweenStarted.Fire(get_time())
+        self.TweenStarted.Fire(self.start_time)
 
     def start(self):
         self.StartCalled.Connect(get_time())
         if (delay := self.GetTweenInfoData("delay")) > 0:
-
-            def wrapper():
-                sleep(delay)
-                self._start()
-
-            Thread(daemon=True, target=wrapper).start()
+            Thread(daemon=True, target=start_wrapper, args=(self, delay)).start()
         else:
             self._start()
 
     def update(self) -> bool:
         ti = get_time()
         if ti - self.start_time > self._gt_tw_dt("time"):
-            if self.method == TWEEN_METHOD_LIST:
-                _deep_apply_list(
-                    self.object,
-                    (lambda a, b: _ival(b)),
-                    self._original_values,
-                    self.target,
-                )
-            elif self.method == TWEEN_METHOD_DICT:
-                _deep_apply_dict(
-                    self.object,
-                    (lambda a, b: _ival(b)),
-                    self._original_values,
-                    self.target,
-                )
-            elif self.method == TWEEN_METHOD_ATTRIBUTE:
-                for key in self.target:
-                    self._original_values[key] = setattr(
-                        self.object, key, self.target[key]
-                    )
+            if self.method == 1:
+                _deep_apply_list(self.object, (lambda _, x: _ival(x)), self._original_values, self.target)
+            elif self.method == 0:
+                _deep_apply_dict(self.object, (lambda _, x: _ival(x)), self._original_values, self.target)
             self.Completed.Fire(ti)
 
             return True
         t = self._gt_tw_dt("style")(ti - self.start_time) / self._gt_tw_dt("time")
-        funcc = lambda a, b: _ival(a) + (_ival(b) - _ival(a)) * t
+        funcc = lambda _a, _b: _ival(_a) + (_ival(_b) - _ival(_a)) * t
 
-        if self.method == TWEEN_METHOD_LIST:
+        if self.method == 1:
             _deep_apply_list(self.object, funcc, self._original_values, self.target)
-        elif self.method == TWEEN_METHOD_DICT:
+        elif self.method == 0:
             _deep_apply_dict(self.object, funcc, self._original_values, self.target)
-        elif self.method == TWEEN_METHOD_ATTRIBUTE:
-            _deep_apply_attr(self.object, funcc, self._original_values, self.target)
         self.Step.Fire(t)
 
 
@@ -385,9 +286,9 @@ class TweenThread:
     @staticmethod
     def __update_wrap__(self_obj):
         while not self_obj.stopped:
-            st = get_time()
+            sm = get_time()
             self_obj.update()
-            sleep(max(1 / self_obj.cycles - (get_time() - st), 0))
+            sleep(max(1 / self_obj.cycles - (get_time() - sm), 0))
 
     def update(self):
         for tw_obj in self.items.copy():

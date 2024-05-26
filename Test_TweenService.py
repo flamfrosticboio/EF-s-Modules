@@ -30,8 +30,8 @@ clock = pg.time.Clock()
 
 allFrames = [
     Frame((10, 10), (50, 50), (255, 0, 0)),
-    Frame((10, 100), (50, 50), (255, 0, 0)),
-    Frame((10, 160), (50, 50), (255, 0, 0)),
+    # Frame((10, 100), (50, 50), (255, 0, 0)),
+    # Frame((10, 160), (50, 50), (255, 0, 0)),
 ]
 
 pLoopFunc = None
@@ -66,13 +66,20 @@ test_data = {
             ("allFrames[0].rect", "{}, {'topleft': [200, 200], 'size': [200, 200]}"),
             ("DataWrapper(allFrames[0].rect)", "{}, {'values': [200, 200, 100, 100]}"),
             # ("DataWrapper(allFrames[0].rect)", "{}, {'values': {'topleft': [200, 200], 'size': [100, 100]}}"),
+            
+            # Combos
+            ("[{'a': 10, 'b': [10, 20]}]", "{}, [{'a': 100, 'b': [100, 200]}]"),
+            ("{'a': [10, 20], 'b': {'c': [30, 40]}}", "{}, {'a': [100, 200], 'b': {'c': [300, 400]}}"),
+            ("[{'a': [{'b': [{'c': 10}]}]}]", "{}, [{'a': [{'b': [{'c': 100}]}]}]"),
+            ("[allFrames[0].rect]", "{}, [{'topleft': [20, 30]}]"),
+            ("[{'a': DataWrapper([{'b': allFrames[0].rect}])}]", "{}, [{'a': {'values': [{'b': {'topleft': [10, 20]}}]}}]"),
             ],
         "command": [
             "globals()['completed'] = False",
-            "item_a = %s",
+            "item_a = {a0}",
             "allFrames[0].rect.topleft = (10, 10)",
             "allFrames[0].rect.size = (50, 50)",
-            "x = TweenService.TweenHandler(item_a, %s)",
+            "x = TweenService.TweenHandler(item_a, {a1})",
             "x.Completed.Connect(lambda _: allFrames[0].image.fill((0, 255, 0)))",
             "x.TweenStarted.Connect(lambda _: allFrames[0].image.fill((255, 0, 0)))",
             "x.Completed.Connect(lambda _: exec('globals()[\"completed\"] = True'))",
@@ -84,6 +91,7 @@ test_data = {
         "loop_command": [
             "allFrames[0].rect.topleft = item_a"
         ],
+        "cmd_kwargs": '{f"a{j}":contents[\'data\'][i][j] for j in range(2)}',
         "interval": 0.5,
     },
     "Easing Tests": {
@@ -108,13 +116,23 @@ test_data = {
             "globals()['item_a'] = item_a",
             # "%s",
         ],
+        "setup_command": [
+            "allFrames.append(Frame((10, 10), (50, 50), (255, 0, 0)))",
+            "allFrames.append(Frame((10, 10), (50, 50), (255, 0, 0)))"
+        ],
         "interval": 0.2,
     }
 }
 
 print("Tester 1.0 [Made by \\'ER']")
 
-skip_test = ["Method Test"]
+skip_test = []
+
+def execute_commands(commands: list[str], globals = None, locals = None, fargs = (), fkwargs = {}):
+    print("PRINTING", fkwargs)
+    for command in commands:
+        formatted_command = command.format(*fargs, **fkwargs)
+        exec(formatted_command, globals, locals)
 
 def tester():
     global pLoopFunc
@@ -123,23 +141,18 @@ def tester():
 
         contents = test_data[test_data_name]
         print("Now Executing:", test_data_name)
+        if cmd:=contents.get("setup_command"):
+            execute_commands(cmd, globals(), locals())
+
         for i in range(len(contents['data'])):
             print(">>", contents['data'][i])
-            di = 0
-            for cmd in contents['command']:
-                if "%" in cmd:
-                    # print(">", cmd % contents['data'][i][di])
-                    if di < len(contents['data'][i]) and contents['data'][i][di]:
-                        exec(cmd % contents['data'][i][di])
-                    else:
-                        exec(cmd)
-                    di += 1
-                else:
-                    # print(">", cmd)
-                    exec(cmd)
+            print(contents.get("cmd_kwargs", ""))
+            execute_commands(contents['command'], globals(), None, 
+                             fkwargs={f"a{j}":contents['data'][i][j] for j in range(2)})
             while completed == False:
                 sleep(0.1)
             sleep(contents.get("interval", 1))
+        print("Test is finished!")
 
 Thread(daemon=True, target=tester).start()
 
@@ -157,16 +170,16 @@ while running:
             exec(cmd)
         
     if item_a:
-        if isinstance(item_a, list):
-            if len(item_a) < 3 and isinstance(item_a[0], (int, float)): allFrames[0].rect.topleft = item_a
-        elif isinstance(item_a, (LinkedList, LinkedList_Extended)):
-            allFrames[0].rect.topleft = item_a.get_values()
-        elif isinstance(item_a, dict):
-            if isinstance(item:=item_a.get("va"), LinkedList_Extended):
-                allFrames[0].rect.topleft = item.get_values()
-            else:
-                allFrames[0].rect.topleft = item
-        # print(item_a)
+        # if isinstance(item_a, list):
+        #     if len(item_a) < 3 and isinstance(item_a[0], (int, float)): allFrames[0].rect.topleft = item_a
+        # elif isinstance(item_a, (LinkedList, LinkedList_Extended)):
+        #     allFrames[0].rect.topleft = item_a.get_values()
+        # elif isinstance(item_a, dict):
+        #     if isinstance(item:=item_a.get("va"), LinkedList_Extended):
+        #         allFrames[0].rect.topleft = item.get_values()
+        #     else:
+        #         allFrames[0].rect.topleft = item
+        print(item_a)
 
     for frame in allFrames:
         frame.render(screen)
