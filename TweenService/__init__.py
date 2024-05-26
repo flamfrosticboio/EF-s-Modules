@@ -33,14 +33,12 @@ def _get_iter(obj, index):
         i += 1
 
 def _get_item(item, name, attr = False):
-    # print("GTITEM", item, name, attr)
     if attr: return getattr(item, name)
     if hasattr(item, "__getitem__"): return item[name]
     if hasattr(item, "__iter__"): return _ival(_get_iter(item, name))
     return getattr(item, name)
 
 def _set_item(item, name, value, attr = False):
-    # print("STITEM", item, name)
     if hasattr(item, "__setitem__") and not attr: item[name] = value
     else: setattr(item, name, value) 
 
@@ -49,9 +47,7 @@ def _ap_cond(m, f, a, b, key):
     sa = _get_item(a, key)
     sb = _get_item(b, key)
     attr_m = isinstance(a, dict) and not isinstance(m, dict)
-    # print("ATTR", attr_m, m, a)
     sm = _get_item(m, key, attr_m)
-    # print("COND ITEM", sa, sb, "-m", m, sm, "--isAttr", attr_m)
     if isinstance(sa, dict):
         _deep_apply_dict(sm, f, sa, sb)
     elif hasattr(sm, "__setitem__"):
@@ -67,22 +63,17 @@ def _ap_cond(m, f, a, b, key):
         _set_item(m, key, result, attr_m)
 
 def _deep_apply_list(m, f, a, b):
-    print("ADL")
     for t, _ in enumerate(m):
         _ap_cond(m, f, a, b, t)
 
 def _deep_apply_dict(m, f, a, b):
-    print("ADD")
     for t in a:
         _ap_cond(m, f, a, b, t)
 
 def _cp_cond(_m, _t, key):
-    print("COND", _m, _t, key)
     attr_m = isinstance(_t, dict) and not isinstance(_m, dict)
-    print("ATTR", attr_m)
     sm = _get_item(_m, key, attr_m)
     st = _get_item(_t, key)
-    print("COND ITEM", sm, st)
     if isinstance(st, dict):
         return _deep_copy_dict(sm, st)
     elif hasattr(sm, "__iter__"):
@@ -93,19 +84,15 @@ def _cp_cond(_m, _t, key):
     return _ival(sm)
 
 def _deep_copy_dict(m, t):
-    print("TYPE DICT")
     res = {}
     for key in t:
         res[key] = _cp_cond(m, t, key)
-    print("FINAL DD", res)
     return res
 
 def _deep_copy_list(m, t):
-    print("TYPE LIST")
     res = []
     for i in range(len(tuple(t))):
         res.append(_cp_cond(m, t, i))
-    print("FINAL DL", res)
     return res
 
 
