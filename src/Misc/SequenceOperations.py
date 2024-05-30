@@ -4,11 +4,11 @@ There are flags you can toggle using set_flag().
 In using sequence operations (<operation>S), the creation of sequence sends you a generator expression.
 """
 
-from typing import Any, TypeVar, TypeVarTuple, Tuple, List
+from typing import Any, TypeVar, Tuple, List, SupportsIndex
 from operator import index
 from math import floor, ceil
 
-SeqT = TypeVar("SeqT")
+SeqT = TypeVar("SeqT", )
 
 # ### Autobuild Script ###
 # operations = {'add': "+", "sub": "-", "mul": "*", "div": "/", "fdiv": "//", "pow": "**", "mod": "%",
@@ -36,7 +36,6 @@ SeqT = TypeVar("SeqT")
 
 # Flags
 allow_any_length = False
-disable_type_check = False
 
 # Exceptions
 class LengthError(BaseException): pass
@@ -86,27 +85,27 @@ def modT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> 
     guard_check(a, b)
     return tuple(x % y for x, y in zip(a, b))
 
-def lshiftT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def lshiftT(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to a << b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x << y for x, y in zip(a, b))
 
-def rshiftT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def rshiftT(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to a >> b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x >> y for x, y in zip(a, b))
 
-def andT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def andT(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to a & b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x & y for x, y in zip(a, b))
 
-def orT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def orT(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to a | b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x | y for x, y in zip(a, b))
 
-def xorT(a: Tuple[int | float | Any, ...], b: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def xorT(a: Tuple[int, ...], b: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to a ^ b for every item in a tuple."""
     guard_check(a, b)
     return tuple(x ^ y for x, y in zip(a, b))
@@ -119,7 +118,7 @@ def absT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to abs(a) for every item in a tuple."""
     return tuple(abs(x) for x in a)
 
-def invT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def invT(a: Tuple[int, ...]) -> Tuple[int, ...]:
     """Equivalent to ~a for every item in a tuple."""
     return tuple(~x for x in a)
 
@@ -131,7 +130,7 @@ def tofloatT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
     """Equivalent to float(a) for every item in a tuple."""
     return tuple(float(x) for x in a)
 
-def toindexT(a: Tuple[int | float | Any, ...]) -> Tuple[int | float | Any, ...]:
+def toindexT(a: Tuple[int | SupportsIndex, ...]) -> Tuple[int | SupportsIndex, ...]:
     """Equivalent to index(a) for every item in a tuple."""
     return tuple(index(x) for x in a)
 
@@ -182,27 +181,27 @@ def modL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | f
     guard_check(a, b)
     return list(x % y for x, y in zip(a, b))
 
-def lshiftL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
+def lshiftL(a: List[int], b: List[int]) -> List[int]:
     """Equivalent to a << b for every item in a list."""
     guard_check(a, b)
     return list(x << y for x, y in zip(a, b))
 
-def rshiftL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
+def rshiftL(a: List[int], b: List[int]) -> List[int]:
     """Equivalent to a >> b for every item in a list."""
     guard_check(a, b)
     return list(x >> y for x, y in zip(a, b))
 
-def andL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
+def andL(a: List[int], b: List[int]) -> List[int]:
     """Equivalent to a & b for every item in a list."""
     guard_check(a, b)
     return list(x & y for x, y in zip(a, b))
 
-def orL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
+def orL(a: List[int], b: List[int]) -> List[int]:
     """Equivalent to a | b for every item in a list."""
     guard_check(a, b)
     return list(x | y for x, y in zip(a, b))
 
-def xorL(a: List[int | float | Any], b: List[int | float | Any]) -> List[int | float | Any]:
+def xorL(a: List[int], b: List[int]) -> List[int]:
     """Equivalent to a ^ b for every item in a list."""
     guard_check(a, b)
     return list(x ^ y for x, y in zip(a, b))
@@ -215,7 +214,7 @@ def absL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to abs(a) for every item in a list."""
     return list(abs(x) for x in a)
 
-def invL(a: List[int | float | Any]) -> List[int | float | Any]:
+def invL(a: List[int]) -> List[int]:
     """Equivalent to ~a for every item in a list."""
     return list(~x for x in a)
 
@@ -227,7 +226,7 @@ def tofloatL(a: List[int | float | Any]) -> List[int | float | Any]:
     """Equivalent to float(a) for every item in a list."""
     return list(float(x) for x in a)
 
-def toindexL(a: List[int | float | Any]) -> List[int | float | Any]:
+def toindexL(a: List[int | SupportsIndex]) -> List[int | SupportsIndex]:
     """Equivalent to index(a) for every item in a list."""
     return list(index(x) for x in a)
 
@@ -246,95 +245,104 @@ def ceilL(a: List[int | float | Any]) -> List[int | float | Any]:
 def addS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a + b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x + y for x, y in zip(a, b))
+    return a.__class__(x + y for x, y in zip(a, b))  # type: ignore
 
 def subS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a - b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x - y for x, y in zip(a, b))
+    return a.__class__(x - y for x, y in zip(a, b))  # type: ignore
 
 def mulS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a * b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x * y for x, y in zip(a, b))
+    return a.__class__(x * y for x, y in zip(a, b))  # type: ignore
 
 def divS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a / b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x / y for x, y in zip(a, b))
+    return a.__class__(x / y for x, y in zip(a, b))  # type: ignore
 
 def fdivS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a // b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x // y for x, y in zip(a, b))
+    return a.__class__(x // y for x, y in zip(a, b))  # type: ignore
 
 def powS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a ** b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x ** y for x, y in zip(a, b))
+    return a.__class__(x ** y for x, y in zip(a, b))  # type: ignore
 
 def modS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a % b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x % y for x, y in zip(a, b))
+    return a.__class__(x % y for x, y in zip(a, b))  # type: ignore
 
 def lshiftS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a << b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x << y for x, y in zip(a, b))
+    return a.__class__(x << y for x, y in zip(a, b))  # type: ignore
 
 def rshiftS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a >> b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x >> y for x, y in zip(a, b))
+    return a.__class__(x >> y for x, y in zip(a, b))  # type: ignore
 
 def andS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a & b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x & y for x, y in zip(a, b))
+    return a.__class__(x & y for x, y in zip(a, b))  # type: ignore
 
 def orS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a | b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x | y for x, y in zip(a, b))
+    return a.__class__(x | y for x, y in zip(a, b))  # type: ignore
 
 def xorS(a: SeqT, b: SeqT) -> SeqT:
     """Equivalent to a ^ b for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
     guard_check(a, b)
-    return a.__class__(x ^ y for x, y in zip(a, b))
+    return a.__class__(x ^ y for x, y in zip(a, b))  # type: ignore
 
 def negS(a: SeqT) -> SeqT:
     """Equivalent to -a for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(-x for x in a)
+    return a.__class__(-x for x in a)  # type: ignore
 
 def absS(a: SeqT) -> SeqT:
     """Equivalent to abs(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(abs(x) for x in a)
+    return a.__class__(abs(x) for x in a)  # type: ignore
 
 def invS(a: SeqT) -> SeqT:
     """Equivalent to ~a for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(~x for x in a)
+    return a.__class__(~x for x in a)  # type: ignore
 
 def tointS(a: SeqT) -> SeqT:
     """Equivalent to int(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(int(x) for x in a)
+    return a.__class__(int(x) for x in a)  # type: ignore
 
 def tofloatS(a: SeqT) -> SeqT:
     """Equivalent to float(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(float(x) for x in a)
+    return a.__class__(float(x) for x in a)  # type: ignore
 
 def toindexS(a: SeqT) -> SeqT:
     """Equivalent to index(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(index(x) for x in a)
+    return a.__class__(index(x) for x in a)  # type: ignore
 
 def roundS(a: SeqT) -> SeqT:
     """Equivalent to round(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(round(x) for x in a)
+    return a.__class__(round(x) for x in a)  # type: ignore
 
 def floorS(a: SeqT) -> SeqT:
     """Equivalent to floor(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(floor(x) for x in a)
+    return a.__class__(floor(x) for x in a)  # type: ignore
 
 def ceilS(a: SeqT) -> SeqT:
     """Equivalent to ceil(a) for every item in a sequence. Note: It will create a new class based on parameter 'a' and pass parameters of a generator expression."""
-    return a.__class__(ceil(x) for x in a)
+    return a.__class__(ceil(x) for x in a)  # type: ignore
+
+
+class NonTakeIterable:
+    def __init__(self, items: str) -> None:
+        self.items = items
+    def __iter__(self): return self.items
+
+
+print(addS({1, 2, 3}, [2, 4, 5]))
