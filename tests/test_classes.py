@@ -59,7 +59,7 @@ class LinkedList:
         return self
     
     def __next__(self):
-        self._current = self._current.next
+        self._current = self._current.next  # type:ignore
         if self._current is None: raise StopIteration
         return self._current
 

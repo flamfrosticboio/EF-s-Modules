@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Sequence
+from typing import Sequence, Any
 from time import time as get_time, sleep
 from threading import Thread
 from TweenService.Easings import Linear
@@ -17,7 +17,7 @@ TWEEN_EVENT_TYPE_ONCE = 1
 TWEEN_METHOD_DICT = 0
 TWEEN_METHOD_LIST = 1
 
-_default_kpdict = None
+_default_kpdict: dict | None = None
 
 def _print_warning(type, message):
     print("\033[93m" + type + ": " + message + "\033[0m")
@@ -32,7 +32,7 @@ def _get_iter(obj, index):
         if i == index: return x
         i += 1
 
-def _get_item(item, name, attr = False):
+def _get_item(item, name, attr = False) -> Any:
     if attr: return getattr(item, name)
     if hasattr(item, "__getitem__"): return item[name]
     if hasattr(item, "__iter__"): return _ival(_get_iter(item, name))
@@ -43,7 +43,7 @@ def _set_item(item, name, value, attr = False):
     else: setattr(item, name, value) 
 
 def _ap_cond(m, f, a, b, key):
-    print("COND", m, a, b, key)
+    # print("COND", m, a, b, key)
     sa = _get_item(a, key)
     sb = _get_item(b, key)
     attr_m = isinstance(a, dict) and not isinstance(m, dict)
@@ -147,7 +147,8 @@ class TweenEvent:
                 self.events.remove((_func, _t))
                 return
         _print_warning(
-            f"[TweenEvent:{self.name}] Warning: Cannot find function {func} to Disconnect."
+            f"[TweenEvent:{self.name}] Warning",
+            f"Cannot find function {func} to Disconnect."
         )
 
     def Once(self, func, append_left=False):
@@ -208,9 +209,12 @@ class TweenHandler:
         return self.GetTweenInfo().get(key)
 
     def _gt_tw_dt(self, key):
-        return self.tweenInfo.get(key, _default_kpdict[key])
+        return self.tweenInfo.get(key, _default_kpdict[key])    # type: ignore
 
     def _start(self):
+        if self.thread is None:
+            raise RuntimeError("Thread is None")
+
         if self.method == 1:
             self._original_values = _deep_copy_list(self.object, self.target)
         else:
@@ -231,7 +235,7 @@ class TweenHandler:
         else:
             self._start()
 
-    def update(self) -> bool:
+    def update(self) -> bool | None:
         ti = get_time()
         if ti - self.start_time > self._gt_tw_dt("time"):
             if self.method == 1:
@@ -282,7 +286,6 @@ class TweenThread:
             completed = tw_obj.update()
             if completed == True:
                 self.items.remove(tw_obj)
-                print("Done!")
 
     def stop(self):
         self.stopped = True

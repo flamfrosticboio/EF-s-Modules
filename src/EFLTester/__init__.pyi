@@ -1,5 +1,7 @@
 """A module to test things using commands and data. Under the hood, this is a exec(cmd) like tester that cmd:str is formatted by parameter:data.
-Note: Use only kwargs or args is allowed in formatting your commands. It is not possible to use both args and kwargs in data due to string.format() limitations.
+Notes: 
+- Use only kwargs or args is allowed in formatting your commands. It is not possible to use both args and kwargs in data due to string.format() limitations.
+- Pass globals and locals in main / async_main function if you intend to use them. 
 
 Manual:
     TestDataContents (Dict):
@@ -33,7 +35,7 @@ Manual:
         - disable_globals: (bool)
             - Whenever should the test use globals() or interact at global space
         - disable_locals: (bool)
-            - Whenever should the thest use locals() or interact at local space (at <function execute_test()>)
+            - Whenever should the thest use locals() or interact at local space (at <function > default)
 
     ArgsDict (Dict):
     -[Not Required]
@@ -70,5 +72,5 @@ class TestDataContents(TypedDict):
     printout_current_data: NotRequired[bool]
 
 def execute_test(test_name: str, contents: TestDataContents): ...
-def main(test_data: dict[str, TestDataContents]): ...
-def async_main(test_data: dict[str, TestDataContents]) -> Thread: ...
+def main(test_data: dict[str, TestDataContents], globals: dict[str, Any] | None = None, locals: dict[str, Any] | None = None): ...
+def async_main(test_data: dict[str, TestDataContents], globals: dict[str, Any] | None = None, locals: dict[str, Any] | None = None) -> Thread: ...

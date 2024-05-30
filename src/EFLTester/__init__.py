@@ -30,13 +30,17 @@ def _print_test(test_name):
     print(cstr)
     print(rpr)
  
-def execute_test(test_name, contents):
+locals_ = locals
+
+def execute_test(test_name, contents, globals=None, locals=None):
     _print_test(test_name)
+
+    if locals is None: locals = locals_()
 
     btimeit = contents.get("timeit", False)
     main_commands = contents.get("commands")
 
-    _globals = None if contents.get("disable_globals") else globals()
+    _globals = None if contents.get("disable_globals") else globals
 
     if btimeit == True:
         start_time = get_time() - _time_offset
@@ -44,7 +48,7 @@ def execute_test(test_name, contents):
         print("")
 
     if cmd := contents.get("setup_commands", None):
-        _locals = None if contents.get("disable_locals") else locals()
+        _locals = None if contents.get("disable_locals") else locals
         _args = _unpack_args(contents.get("setup_args"))
         execute_commands(
             cmd, _globals, _locals, _args[0], _args[1]
@@ -52,7 +56,7 @@ def execute_test(test_name, contents):
 
     interval = contents.get("interval", 0)
     for data in contents["data"]:
-        _locals = None if contents.get("disable_locals") else locals()
+        _locals = None if contents.get("disable_locals") else locals
         args = (data,) if isinstance(data, str) else tuple(data) if hasattr(data, "__iter__") else ()
         kwargs = data if isinstance(data, dict) else {}
         
@@ -66,7 +70,7 @@ def execute_test(test_name, contents):
     print(f"Executing '{test_name}' finished!")
 
     if cmd := contents.get("exit_commands", None):
-        _locals = None if contents.get("disable_locals") else locals()
+        _locals = None if contents.get("disable_locals") else locals
         _args = _unpack_args(contents.get("exit_args"))
         execute_commands(
             cmd, _globals, _locals, _args[0], _args[1]
@@ -80,7 +84,7 @@ def execute_test(test_name, contents):
 
     print("\n")
 
-def _main(test_data: dict[str, dict], async_mode=False):
+def _main(test_data: dict[str, dict], async_mode=False, globals=None, locals=None):
     print("#-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~#")
     print("| /// Tester Module version 1.1 [Made by EF] /// |")
     print("#-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~#")
@@ -92,10 +96,13 @@ def _main(test_data: dict[str, dict], async_mode=False):
     print("")
 
     for test_name, contents in test_data.items():
-        execute_test(test_name, contents)
+        execute_test(test_name, contents, globals, locals)
 
-def main(test_data): _main(test_data)
-def async_main(test_data):
-    thread = Thread(daemon=True, target=_main, args=(test_data,), kwargs={"async_mode": True})
+def main(test_data, globals=None, locals=None): 
+    _main(test_data, globals=globals, locals=locals)
+
+def async_main(test_data, globals=None, locals=None):
+    thread = Thread(daemon=True, target=_main, args=(test_data,), 
+                    kwargs={"async_mode": True, 'globals': globals, 'locals': locals})
     thread.start()
     return thread
