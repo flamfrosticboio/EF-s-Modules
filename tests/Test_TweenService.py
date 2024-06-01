@@ -1,7 +1,9 @@
 import sys, os; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+print(sys.path)
 
 import pygame as pg
 from src import TweenService
+from src.TweenService import Easings
 from threading import Thread
 from time import sleep
 from tests.test_classes import *
@@ -33,8 +35,6 @@ clock = pg.time.Clock()
 
 allFrames = [
     Frame((10, 10), (50, 50), (255, 0, 0)),
-    # Frame((10, 100), (50, 50), (255, 0, 0)),
-    # Frame((10, 160), (50, 50), (255, 0, 0)),
 ]
 
 item_index = 0
@@ -104,7 +104,7 @@ test_data: dict[str, EFLTester.TestDataContents] = {
             "allFrames[2].rect.topleft = (10, 220)",
             "allFrames[2].rect.size = (50, 50)",
             "for i, t in enumerate(('In', 'Out', 'InOut')):"
-            " x=TweenService.TweenHandler(allFrames[i].rect, {{'style': eval(f'TweenService.Easings.Ease{{t}}{}')}}, {{'topleft': [450, 200 + (60 * i)], 'size': [20, 20]}});"
+            " x=TweenService.TweenHandler(allFrames[i].rect, {{'style': eval(f'Easings.Ease{{t}}{}')}}, {{'topleft': [450, 200 + (60 * i)], 'size': [20, 20]}});"
             " attach_frame(x.Completed, i, lambda x: lambda y: allFrames[x].image.fill((0, 255, 0)));"
             " attach_frame(x.TweenStarted, i, lambda x: lambda y: allFrames[x].image.fill((255, 0, 0)));"
             " x.Completed.Connect(lambda _: exec('globals()[\"completed\"] = True'));"
@@ -116,6 +116,23 @@ test_data: dict[str, EFLTester.TestDataContents] = {
             "allFrames.append(Frame((10, 10), (50, 50), (255, 0, 0)))"
         ],
         "interval": 1.3,
+    },
+    "Special Commands": {
+        'data': [
+            "{'reverses': True}",
+            "{'reverses': True, 'style': Easings.EaseInOutBounce}",
+            "{'reverses': True, 'style': Easings.EaseInOutBack}",
+            "{'repeat_count': 5, 'style': Easings.EaseInOutBack}",
+            "{'repeat_count': 3, 'style': Easings.EaseInOutBack, 'reverses': True}",
+        ],
+        'commands': [
+            "item_a = allFrames[0].rect",
+            "allFrames[0].rect.topleft = (10, 10)",
+            "allFrames[0].rect.size = (50, 50)",
+            "x = TweenService.TweenHandler(item_a, {}, [200, 10, 20, 20])",
+            "x.start()",
+        ],
+        'interval': 6
     }
 }
 
@@ -131,18 +148,6 @@ while running:
             running = False
     tween_thread_main.update()
     screen.fill((255, 255, 255))
-        
-    # if item_a:
-        # if isinstance(item_a, list):
-        #     if len(item_a) < 3 and isinstance(item_a[0], (int, float)): allFrames[0].rect.topleft = item_a
-        # elif isinstance(item_a, (LinkedList, LinkedList_Extended)):
-        #     allFrames[0].rect.topleft = item_a.get_values()
-        # elif isinstance(item_a, dict):
-        #     if isinstance(item:=item_a.get("va"), LinkedList_Extended):
-        #         allFrames[0].rect.topleft = item.get_values()
-        #     else:
-        #         allFrames[0].rect.topleft = item
-        # print(item_a)
 
     for frame in allFrames:
         frame.render(screen)

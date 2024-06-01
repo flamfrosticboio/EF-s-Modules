@@ -1,9 +1,8 @@
 from collections import deque
-from typing import Sequence, Any
+from typing import Any
 from time import time as get_time, sleep
 from threading import Thread
 from TweenService.Easings import Linear
-from operator import index as get_index
 
 DEFAULT_TWEEN_TIME = 1
 DEFAULT_TWEEN_STYLE = Linear
@@ -176,6 +175,8 @@ class TweenHandler:
         self.thread = thread if thread else GlobalTweenThread
         self.flags = flags
 
+        self._repeats = 0
+
         self.Completed = TweenEvent("Completed")
         self.TweenStarted = TweenEvent("TweenStarted")
         self.StartCalled = TweenEvent("StartCalled")
@@ -200,7 +201,7 @@ class TweenHandler:
             elif hasattr(self.object, "__setitem__"):
                 self.method = 1
 
-        print("[Debug]: Method", self.method)
+        # print("[Debug]: Method", self.method)
 
     def GetTweenInfo(self) -> TweenInfo:
         return TweenInfo(self.tweenInfo)
@@ -220,7 +221,7 @@ class TweenHandler:
         else:
             self._original_values = _deep_copy_dict(self.object, self.target)
 
-        print("[Debug]: Original Values:", self._original_values)
+        # print("[Debug]: Original Values:", self._original_values)
         # raise BaseException("Stopped for debugging")
 
         self.running = True
@@ -237,15 +238,27 @@ class TweenHandler:
 
     def update(self) -> bool | None:
         ti = get_time()
-        if ti - self.start_time > self._gt_tw_dt("time"):
+        if ti - self.start_time > self._gt_tw_dt("time") * (2 if self._gt_tw_dt("reverses") else 1):
+            func = lambda _, x: _ival(x)
+            if self._gt_tw_dt("reverses") == True: func = lambda x, _: _ival(x)
+
             if self.method == 1:
-                _deep_apply_list(self.object, (lambda _, x: _ival(x)), self._original_values, self.target)
+                _deep_apply_list(self.object, func, self._original_values, self.target)
             elif self.method == 0:
-                _deep_apply_dict(self.object, (lambda _, x: _ival(x)), self._original_values, self.target)
+                _deep_apply_dict(self.object, func, self._original_values, self.target)
             self.Completed.Fire(ti)
 
-            return True
-        t = self._gt_tw_dt("style")(ti - self.start_time) / self._gt_tw_dt("time")
+            if self._repeats != self._gt_tw_dt("repeat_count"):
+                self._repeats += 1
+                self.start_time = get_time()
+            else:
+                self.running = False
+                return True
+        
+        rwt = (ti - self.start_time) / self._gt_tw_dt("time")
+        if self._gt_tw_dt("reverses") and rwt > 1: rwt = 2 - rwt
+
+        t = self._gt_tw_dt("style")(rwt)
         funcc = lambda _a, _b: _ival(_a) + (_ival(_b) - _ival(_a)) * t
 
         if self.method == 1:
@@ -284,8 +297,7 @@ class TweenThread:
     def update(self):
         for tw_obj in self.items.copy():
             completed = tw_obj.update()
-            if completed == True:
-                self.items.remove(tw_obj)
+            if completed == True: self.items.remove(tw_obj)
 
     def stop(self):
         self.stopped = True
