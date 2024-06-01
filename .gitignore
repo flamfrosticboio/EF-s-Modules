@@ -17,3 +17,7 @@ src/Sequences/__pycache__/Vector.cpython-311.pyc
 src/Sequences/__pycache__/Vector2.cpython-311.pyc
 src/TweenService/__pycache__/__init__.cpython-311.pyc
 src/TweenService/__pycache__/Easings.cpython-311.pyc
+src/Sequences/__pycache__/Operational_Sequences.cpython-311.pyc
+src/__pycache__/delay.cpython-311.pyc
+src/__pycache__/timing.cpython-311.pyc
+tests/__pycache__/test_classes.cpython-311.pyc
